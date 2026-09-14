@@ -6,7 +6,7 @@ set(CMAKE_C_STANDARD 11)
 set(CMAKE_C_STANDARD_REQUIRED ON)
 
 set(LIB_DIR "${CMAKE_SOURCE_DIR}/lib")
-set(INCLUDE_DIR "${CMAKE_SOURCE_DIR}/include")
+set(INCLUDE_DIR "${CMAKE_SOURCE_DIR}/include" "${CMAKE_SOURCE_DIR}/include/SDL2")
 
 # Compiler flags
 if(CMAKE_C_COMPILER_ID MATCHES "GNU|Clang")
@@ -162,3 +162,9 @@ if(WIN32)
     endforeach()
 
 endif()
+
+add_custom_command(TARGET karel POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_directory
+        "${CMAKE_SOURCE_DIR}/data"
+        "$<TARGET_FILE_DIR:karel>/data"
+)
