@@ -1,3 +1,4 @@
+#include <stdio.h>
 #include <sys/time.h>
 
 #include <SDL.h>
@@ -7,6 +8,11 @@
 #include "spl.h"
 
 const int false = 0, true = 1;
+
+#ifdef _WIN32
+    #define strcasecmp _stricmp
+    #define strncasecmp _strnicmp
+#endif
 
 enum {
 	COLOR_BLACK,

@@ -61,6 +61,26 @@ static int str2dir (char *str) {
 	return D_UNKNOWN;
 }
 
+static char *mystrsep(char **stringp, const char *delim)
+{
+    char *start = *stringp;
+    char *p;
+
+    if (start == NULL)
+        return NULL;
+
+    p = start + strcspn(start, delim);
+
+    if (*p != '\0') {
+        *p = '\0';
+        *stringp = p + 1;
+    } else {
+        *stringp = NULL;
+    }
+
+    return start;
+}
+
 struct world *parseWorld (char *filename) {
 	FILE *f = fopen(filename, "r");
 	if (!f) {
@@ -72,8 +92,8 @@ struct world *parseWorld (char *filename) {
 
 	char buf[1024], *line;
 	while ((line = fgets(buf, sizeof(buf), f))) {
-		line = strsep(&line, "\r\n");
-		char *keyword = strsep(&line, ":");
+		line = mystrsep(&line, "\r\n");
+		char *keyword = mystrsep(&line, ":");
 		if (strcasecmp(keyword, "Dimension") == 0) {
 			int w, h;
 			int st = sscanf(line, " (%d, %d)", &w, &h);
