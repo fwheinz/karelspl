@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <errno.h>
+#include <math.h>
 
 #include "spl.h"
 #include "karel.h"
@@ -25,7 +26,7 @@ struct karel {
 
 struct world {
 	char *name;
-	int w, h;
+	int w, h, s;
 	struct tile *tiles;
 	struct karel karel;
 	int speed, running;
@@ -212,39 +213,42 @@ struct world *parseWorld (char *filename) {
 
 static void setBeeper (struct world *world, int x, int _y, int beepers) {
 	int y = world->h-_y-1;
-	int sx = getWidth(world->gw)-PADDING*2;
-	int sy = getHeight(world->gw)-PADDING*2;
 	int w = world->w;
-	int h = world->h;
-	int s = sx / w;
-	int s2 = sy / h;
-	if (s > s2)
-		s = s2;
+	int s = world->s;
 
 	struct tile *t = &world->tiles[_y*w+x];
 	t->beepers = beepers;
 	if (beepers) {
+		int fontsize = s/3;
+		if (fontsize < 8) fontsize = 8;
 		if (!t->beeper_label) {
-			char nr[12] = " ";
-			if (beepers > 1) 
-				snprintf(nr, sizeof nr, "%d", beepers);
-			t->beeper_label = newGLabel(nr);
-			int fontsize = s/5;
+			t->beeper_label = newGLabel(" ");
 			char fontsizestr[20];
 			snprintf(fontsizestr, sizeof fontsizestr, "*-*-%d", fontsize);
 			setFont(t->beeper_label, fontsizestr);
-			move(t->beeper_label, PADDING+x*s+s/2-(fontsize*strlen(nr))/2, PADDING+y*s+s/2-fontsize/2);
-			add(world->gw, t->beeper_label);
-			sendToBack(t->beeper_label);
-			}
+			setColor(t->beeper_label, "black");
+			int lx = PADDING+x*s+s/2-fontsize/2;
+			int ly = PADDING+y*s+s/2-fontsize/2;
+			addAt(world->gw, t->beeper_label, lx, ly);
+		}
 		if (!t->beeper_img) {
-			t->beeper_img = newGRect(PADDING+x*s+s/4, PADDING+y*s+s/4, s/2, s/2);
+			t->beeper_img = newGPolygon();
+			addVertex(t->beeper_img, PADDING+x*s+s/2, PADDING+y*s+s/10);
+			addEdge(t->beeper_img, s/2-s/10, s/2-s/10);
+			addEdge(t->beeper_img, -s/2+s/10, s/2-s/10);
+			addEdge(t->beeper_img, -s/2+s/10, -s/2+s/10);
 			setColor(t->beeper_img, "black");
 			setFillColor(t->beeper_img, "light gray");
 			setFilled(t->beeper_img, 1);
 			add(world->gw, t->beeper_img);
-			sendToBack(t->beeper_img);
 		}
+		sendToBack(t->beeper_label);
+		char nr[12] = " ";
+		if (beepers > 1) 
+			snprintf(nr, sizeof nr, "%d", beepers);
+		setLocation(t->beeper_label, PADDING+x*s+s/2-(fontsize*strlen(nr)/2)/2, PADDING+y*s+s/2-fontsize/2);
+		setLabel(t->beeper_label, nr);
+		sendToBack(t->beeper_img);
 	} else {
 		if (t->beeper_img) {
 			removeGWindow(world->gw, t->beeper_img);
@@ -260,16 +264,9 @@ static void setBeeper (struct world *world, int x, int _y, int beepers) {
 }
 
 void setKarel (struct world *world, int x, int _y) {
-	int sx = getWidth(world->gw)-PADDING*2;
-	int sy = getHeight(world->gw)-PADDING*2;
-
-	int w = world->w;
-	int h = world->h;
-	int s = sx / w;
-	int s2 = sy / h;
-	if (s > s2)
-		s = s2;
+	int s = world->s;
 	setSize(world->karel.img, s, s);
+	int h = world->h;
 	int y = h-_y-1;
 	setLocation(world->karel.img, PADDING+x*s, PADDING+y*s);
 }
@@ -277,6 +274,7 @@ void setKarel (struct world *world, int x, int _y) {
 struct world * renderWorld (struct world *world) {
 	if (!world->gw) {
 		world->gw = newGWindow(1000, 800);
+		setWindowTitle(world->gw, "Karel, the Robot!");
 		world->karel.img = newGImage("data/karel.png");
 		add(world->gw, world->karel.img);
 	}
@@ -324,6 +322,7 @@ struct world * renderWorld (struct world *world) {
 	int s2 = sy / h;
 	if (s > s2)
 		s = s2;
+	world->s = s;
 	setColor(world->gw, "gray");
 	setFillColor(world->gw, "gray");
 //	drawRect(world->gw, PADDING, PADDING, w*s, h*s);
@@ -375,7 +374,7 @@ void crash (void) {
 
 static void karelPause (void) {
 	checkEvent();
-	pause(1000/(ww->speed+1));
+	pause(1000/(pow(2,ww->speed)));
 }
 
 int frontIsBlocked (void) {
