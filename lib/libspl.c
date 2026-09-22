@@ -78,6 +78,8 @@ struct ObjectCDT {
 	char keychar, keycode;
 };
 
+typedef struct ObjectCDT Point;
+
 struct color name2color (char *name) {
 	if (!strcasecmp(name, "red")) {
 		return (struct color) { 255, 0, 0 };
@@ -397,7 +399,17 @@ void render_image (GWindow gw, GObject o) {
 	render_image_sdl(gw->rend, o);
 }
 
+int drawFilledPolygon(SDL_Renderer *renderer, const Point *points, int count, SDL_Color color);
+
 void render_polygon_sdl (SDL_Renderer *rend, GObject o) {
+	if (o->filled) {
+		SDL_Color color;
+		if (o->fillcolor.r >= 0) 
+			color = (SDL_Color) { o->fillcolor.r, o->fillcolor.g, o->fillcolor.b, SDL_ALPHA_OPAQUE };
+		else
+			color = (SDL_Color) { o->color.r, o->color.g, o->color.b, SDL_ALPHA_OPAQUE };
+		drawFilledPolygon(rend, o->vector, o->n, color);
+	}
 	SDL_SetRenderDrawColor(rend, o->color.r, o->color.g, o->color.b, SDL_ALPHA_OPAQUE);
 	for (int i = 0; i < o->n; i++) {
 		SDL_RenderDrawLine(rend, o->vector[i].x, o->vector[i].y, o->vector[(i+1)%o->n].x, o->vector[(i+1)%o->n].y);
@@ -1399,3 +1411,213 @@ int main (int argc, char **argv) {
 
 	return 0;
 }
+
+
+
+
+// Filled Polygons
+
+#include <SDL.h>
+#include <stdbool.h>
+#include <stdlib.h>
+#include <math.h>
+
+
+static float cross(Point a, Point b, Point c)
+{
+    return (b.x - a.x) * (c.y - a.y)
+         - (b.y - a.y) * (c.x - a.x);
+}
+
+static bool pointInTriangle(Point p, Point a, Point b, Point c)
+{
+    float c1 = cross(a, b, p);
+    float c2 = cross(b, c, p);
+    float c3 = cross(c, a, p);
+
+    bool hasNeg = (c1 < 0) || (c2 < 0) || (c3 < 0);
+    bool hasPos = (c1 > 0) || (c2 > 0) || (c3 > 0);
+
+    return !(hasNeg && hasPos);
+}
+
+static float polygonArea(const Point *p, int n)
+{
+    float area = 0.0f;
+
+    for (int i = 0; i < n; ++i) {
+        int j = (i + 1) % n;
+        area += p[i].x * p[j].y;
+        area -= p[j].x * p[i].y;
+    }
+
+    return area * 0.5f;
+}
+
+int drawFilledPolygon(
+    SDL_Renderer *renderer,
+    const Point *points,
+    int count,
+    SDL_Color color)
+{
+    if (count < 3)
+        return false;
+
+    /*
+     * Ear clipping expects a consistent winding order.
+     * Make our working index list counter-clockwise.
+     */
+    int *indices = malloc(sizeof(int) * count);
+    if (!indices)
+        return false;
+
+    if (polygonArea(points, count) > 0) {
+        for (int i = 0; i < count; ++i)
+            indices[i] = i;
+    } else {
+        for (int i = 0; i < count; ++i)
+            indices[i] = count - 1 - i;
+    }
+
+    /*
+     * At most count - 2 triangles.
+     */
+    SDL_Vertex *vertices =
+        malloc(sizeof(SDL_Vertex) * (count - 2) * 3);
+
+    if (!vertices) {
+        free(indices);
+        return false;
+    }
+
+    int remaining = count;
+    int triangleCount = 0;
+
+    while (remaining > 3) {
+        bool foundEar = false;
+
+        for (int i = 0; i < remaining; ++i) {
+            int prev = indices[(i + remaining - 1) % remaining];
+            int curr = indices[i];
+            int next = indices[(i + 1) % remaining];
+
+            Point a = points[prev];
+            Point b = points[curr];
+            Point c = points[next];
+
+            /*
+             * Must be convex.
+             */
+            if (cross(a, b, c) <= 0)
+                continue;
+
+            /*
+             * Make sure no other polygon vertex lies
+             * inside this candidate triangle.
+             */
+            bool containsPoint = false;
+
+            for (int j = 0; j < remaining; ++j) {
+                int v = indices[j];
+
+                if (v == prev || v == curr || v == next)
+                    continue;
+
+                if (pointInTriangle(points[v], a, b, c)) {
+                    containsPoint = true;
+                    break;
+                }
+            }
+
+            if (containsPoint)
+                continue;
+
+            /*
+             * We found an ear.
+             */
+            SDL_Vertex *v = &vertices[triangleCount * 3];
+
+            v[0].position.x = a.x;
+            v[0].position.y = a.y;
+
+            v[1].position.x = b.x;
+            v[1].position.y = b.y;
+
+            v[2].position.x = c.x;
+            v[2].position.y = c.y;
+
+            for (int k = 0; k < 3; ++k) {
+                v[k].color = color;
+                v[k].tex_coord.x = 0;
+                v[k].tex_coord.y = 0;
+            }
+
+            triangleCount++;
+
+            /*
+             * Remove the ear from the polygon.
+             */
+            for (int j = i; j < remaining - 1; ++j)
+                indices[j] = indices[j + 1];
+
+            remaining--;
+            foundEar = true;
+            break;
+        }
+
+        /*
+         * Usually means the polygon is malformed,
+         * self-intersecting, or has problematic duplicate
+         * / collinear vertices.
+         */
+        if (!foundEar) {
+            free(vertices);
+            free(indices);
+            return false;
+        }
+    }
+
+    /*
+     * Final triangle.
+     */
+    if (remaining == 3) {
+        Point a = points[indices[0]];
+        Point b = points[indices[1]];
+        Point c = points[indices[2]];
+
+        SDL_Vertex *v = &vertices[triangleCount * 3];
+
+        v[0].position.x = a.x;
+        v[0].position.y = a.y;
+
+        v[1].position.x = b.x;
+        v[1].position.y = b.y;
+
+        v[2].position.x = c.x;
+        v[2].position.y = c.y;
+
+        for (int k = 0; k < 3; ++k) {
+            v[k].color = color;
+            v[k].tex_coord.x = 0;
+            v[k].tex_coord.y = 0;
+        }
+
+        triangleCount++;
+    }
+
+    int result = SDL_RenderGeometry(
+        renderer,
+        NULL,
+        vertices,
+        triangleCount * 3,
+        NULL,
+        0
+    );
+
+    free(vertices);
+    free(indices);
+
+    return result == 0;
+}
+
+
