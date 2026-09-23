@@ -275,6 +275,7 @@ struct world * renderWorld (struct world *world) {
 	if (!world->gw) {
 		world->gw = newGWindow(1000, 800);
 		setWindowTitle(world->gw, "Karel, the Robot!");
+		setRepaint(world->gw, 0);
 		world->karel.img = newGImage("data/karel.png");
 		add(world->gw, world->karel.img);
 	}
@@ -326,9 +327,12 @@ struct world * renderWorld (struct world *world) {
 	setColor(world->gw, "gray");
 	setFillColor(world->gw, "gray");
 //	drawRect(world->gw, PADDING, PADDING, w*s, h*s);
+	GOval o = newGOval(0, 0, 3, 3);
+	setColor(o, "gray");
 	for (int x = 0; x < w; x++) {
 		for (int _y = 0; _y < h; _y++) {
 			int y = h-_y-1;
+			drawAt(world->gw, o, PADDING+x*s+s/2-1, PADDING+y*s+s/2-1);
 			fillOval(world->gw, PADDING+x*s+s/2-1, PADDING+y*s+s/2-1, 3, 3);
 			if (world->tiles[_y*w+x].wall[D_NORTH])
 				drawLine(world->gw, PADDING+x*s, PADDING+y*s, PADDING+x*s+s, PADDING+y*s);
@@ -343,6 +347,7 @@ struct world * renderWorld (struct world *world) {
 		}
 	}
 	setKarel(world, world->karel.x, world->karel.y);
+	setRepaint(world->gw, 1);
 
 	return world;
 }
@@ -386,7 +391,7 @@ int frontIsBlocked (void) {
 }
 int frontIsClear (void) { return !frontIsBlocked(); }
 
-int rightIsBlocked (void) {
+int leftIsBlocked (void) {
 	int x = ww->karel.x;
 	int y = ww->karel.y;
 	struct tile *t = &ww->tiles[y*ww->w+x];
@@ -396,9 +401,9 @@ int rightIsBlocked (void) {
 
 	return t->wall[dir];
 }
-int rightIsClear (void) { return !rightIsBlocked(); }
+int leftIsClear (void) { return !leftIsBlocked(); }
 
-int leftIsBlocked (void) {
+int rightIsBlocked (void) {
 	int x = ww->karel.x;
 	int y = ww->karel.y;
 	struct tile *t = &ww->tiles[y*ww->w+x];
@@ -408,7 +413,8 @@ int leftIsBlocked (void) {
 
 	return t->wall[dir];
 }
-int leftIsClear (void) { return !leftIsBlocked(); }
+
+int rightIsClear (void) { return !rightIsBlocked(); }
 
 int beepersPresent (void) {
 	int x = ww->karel.x;
