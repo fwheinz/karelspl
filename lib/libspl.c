@@ -158,8 +158,8 @@ string getType (GObject o) {
 int sdl_handle_events (int block);
 
 void render_oval_sdl (SDL_Renderer *rend, GObject o) {
-	int cx = o->x + o->w / 2;
-	int cy = o->y + o->h / 2;
+	double cx = o->x + o->w / 2;
+	double cy = o->y + o->h / 2;
 
 	double rx = o->w / 2.0;
 	double ry = o->h / 2.0;
@@ -170,8 +170,8 @@ void render_oval_sdl (SDL_Renderer *rend, GObject o) {
 			SDL_SetRenderDrawColor(rend, o->fillcolor.r, o->fillcolor.g, o->fillcolor.b, SDL_ALPHA_OPAQUE);
 		else
 			SDL_SetRenderDrawColor(rend, o->color.r, o->color.g, o->color.b, SDL_ALPHA_OPAQUE);
-		for (int py = o->y; py < o->y + o->h; ++py) {
-			for (int px = o->x; px < o->x + o->w; ++px) {
+		for (double py = o->y; py < o->y + o->h; ++py) {
+			for (double px = o->x; px < o->x + o->w; ++px) {
 				double dx = (px - cx) / rx;
 				double dy = (py - cy) / ry;
 
