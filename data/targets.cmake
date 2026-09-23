@@ -52,6 +52,7 @@ if(WIN32)
             INTERFACE_INCLUDE_DIRECTORIES
             "${INCLUDE_DIR}"
     )
+    file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/lib/*.dll DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 
 else()
 
