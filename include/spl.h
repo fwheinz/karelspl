@@ -41,6 +41,7 @@ void drawRect (GWindow gw, double x, double y, double w, double h);
 void fillRect (GWindow gw, double x, double y, double w, double h);
 
 void setColor (GObject o, char *name);
+void setColorGWindow (GObject o, char *name);
 char * getColorGWindow(GWindow gw);
 double getWidth (GObject o);
 double getHeight (GObject o);

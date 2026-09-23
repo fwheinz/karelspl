@@ -299,6 +299,10 @@ void setColor (GObject o, char *name) {
 	repaint(o->gw);
 }
 
+void setColorGWindow (GObject o, char *name) {
+	setColor(o, name);
+}
+
 char *getColorGObject (GObject o) {
 	char *c = malloc(8);
 	snprintf(c, 8, "#%02hhx%02hhx%02hhx", o->color.r, o->color.g, o->color.b);
