@@ -221,8 +221,10 @@ int getKeyCode(GKeyEvent e);
 // GTimer getGTimer(GTimerEvent e);
 
 
+// Own functions
 
-
+void setRepaint (GWindow gw, bool do_repaint);
+bool getRepaint (GWindow gw);
 
 #define main main_
 
