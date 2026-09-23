@@ -86,6 +86,7 @@ struct world *parseWorld (char *filename) {
 	FILE *f = fopen(filename, "r");
 	if (!f) {
 		fprintf(stderr, "Opening file %s failed: %s\n", filename, strerror(errno));
+		exit(EXIT_FAILURE);
 		return NULL;
 	}
 

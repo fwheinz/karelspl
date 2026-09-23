@@ -42,7 +42,9 @@ with //name// being the resulting executable and src1.c src2.c ... being the sou
 
     cmake .
     make
-    ./target
+    ./program
+	
+You can also specify a specific target when invoking **make**
 
 ## Method 2: Compile and run with CLion
 
@@ -50,6 +52,6 @@ First, checkout the project on CLion startup from the following GIT URL:
 
     https://github.com/fwheinz/karelspl
 
-Then, choose the correct target from the dropdown list at the top of the window.
+Then, choose the target from the dropdown list at the top of the window.
 
 Finally, press the green play symbol at the top of the window.

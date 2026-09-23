@@ -1,10 +1,7 @@
 #ifndef _SPL_H
 #define _SPL_H
 
-typedef char * string;
-typedef int bool;
-
-extern const int false, true;
+#include "cslib.h"
 
 typedef struct ObjectCDT * GObject;
 typedef struct ObjectCDT * GOval;
@@ -224,7 +221,7 @@ int getKeyCode(GKeyEvent e);
 
 // Own functions
 
-void setRepaint (GWindow gw, bool do_repaint);
+void setRepaint (GWindow gw, int do_repaint);
 bool getRepaint (GWindow gw);
 
 #define main main_

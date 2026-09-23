@@ -26,6 +26,7 @@
 #ifndef _simpio_h
 #define _simpio_h
 
+#include <stdio.h>
 #include "cslib.h"
 
 /**

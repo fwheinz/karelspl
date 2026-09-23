@@ -12,6 +12,8 @@ elseif(MSVC)
     add_compile_options(/O2 /W4)
 endif()
 
+file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/data DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
+
 # ---------------------------------------------------------------------------
 # SDL2
 # ---------------------------------------------------------------------------
