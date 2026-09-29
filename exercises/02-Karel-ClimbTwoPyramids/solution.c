@@ -1,140 +1,97 @@
-/*
- * File: DiamondMiningKarel.c
- * -----------------------------------------
- *
- * Karel wants to mine diamonds. He searches all mines in his worlds and collects
- * the diamonds he finds there.
- *
- */
-
 #include "karel.h"
 
 /*
- * This beams Karel into a DiamondMining-World
+ * Loads Karels world with two pyramids on startup.
  */
 void setup (void) {
     loadWorld("ClimbTwoPyramidsKarel");
 }
 
 /*
- * Karel turns 90 degrees to the right (clockwise)
+ * Karel turns right. Can be called anytime.
  */
 void turnRight (void) {
-    turnLeft();
-    turnLeft();
-    turnLeft();
+    for (int i = 0; i < 3; i++) {
+        turnLeft();
+    }
 }
 
 /*
- * Karel turns around (180 degrees)
+ * Karel climbs up the pyramid and collects all beepers.
+ * pre-condition: Karel stands in front of a pyramid facing east.
+ * post-condition: Karel stands on the top of a pyramid facing east.
  */
-void turnAround (void) {
-    turnLeft();
-    turnLeft();
-}
-
-/*
- * Karel climbs up the mine shaft.
- * pre-condition: Karel stands directly below the mine exit facing west
- * post-condition: Karel stands on top of the mine shaft facing east
- */
-void ascendMine (void) {
-    turnRight();
-    move();
-    while (rightIsBlocked()) {
+void climbUp() {
+    while (frontIsBlocked()) {
+        turnLeft();
         move();
-    }
-    turnRight();
-}
-
-/*
- * Karel seeks the mine exit.
- * pre-condition: Karel stands on the right end of the mine facing east
- * post-condition: Karel stands directly below the mine exit facing west
- */
-void findExit (void) {
-    turnAround();
-    while (rightIsBlocked()) {
+        turnRight();
         move();
-    }
-}
-
-/*
- * Karel tries to collect all diamonds at the current position.
- * pre-condition: none
- * post-condition: No diamonds (beepers) are left at the current position.
- */
-void tryToCollectDiamonds (void) {
-    while (beepersPresent()) {
-        pickBeeper();
-    }
-}
-
-/*
- * Karel searches and collects all diamonds in the mine.
- * pre-condition: Karel is at the bottom of the mine, facing south
- * post-condition: Karel is at the right end of the mine, facing east
- */
-void searchDiamonds (void) {
-    /* Move to the left end of the mine */
-    turnRight();
-    while (frontIsClear()) {
-        move();
-    }
-    turnAround();
-
-    /* Walk to the right end collecting all diamonds */
-    tryToCollectDiamonds();
-    while (frontIsClear()) {
-        move();
-        tryToCollectDiamonds();
-    }
-}
-
-/*
- * Karel dives into the mine.
- * pre-condition: Karel stands on top of the mine facing east.
- * post-condition: Karel stands at the bottom of the mine, facing south
- */
-void descendMine (void) {
-    turnRight();
-    while (frontIsClear()) {
-        move();
-    }
-}
-
-/*
- * Karel mines the diamonds in a single mine.
- * pre-condition: Karel stands on top of a mine, facing east.
- * post-condition: Karel stands on top of a mine, facing east. All diamonds were mined.
- */
-void mineDiamonds (void) {
-    descendMine();
-    searchDiamonds();
-    findExit();
-    ascendMine();
-}
-
-/*
- * Karel walks through his world, mining all diamonds he can find.
- * pre-condition: Karel stands in his initial position on the ground, facing east.
- * post-condition: Karel stands in his final position on the ground in front of the right wall.
- *                 All diamonds were mined.
- */
-void mineAllDiamonds (void) {
-    while (frontIsClear()) {
-        /* The right wall is not yet reached */
-        if (rightIsClear()) {
-            /* We have found a mine entry, start mining diamonds */
-            mineDiamonds();
+        if (beepersPresent()) {
+            pickBeeper();
         }
+    }
+}
+
+/*
+ * Karel climbs down the pyramid and collects all beepers.
+ * pre-condition: Karel stands on the top of a pyramid facing east.
+ * post-condition: Karel stands one step behind the pyramid facing east.
+ */
+void climbDown() {
+    move();
+    turnRight();
+    while (frontIsClear()) {
+        move();
+        if (beepersPresent()) {
+            pickBeeper();
+        }
+        turnLeft();
+        move();
+        turnRight();
+    }
+    turnLeft();
+}
+
+/*
+ * Karel climbs over a single pyramid and collects all beepers.
+ * pre-condition: Karel stands on the ground in front of a pyramid, facing east.
+ * post-condition: Karel stands one step behind the pyramid facing east.
+ */
+void climbPyramid() {
+    climbUp();
+    climbDown();
+}
+
+/*
+ * Karel looks for the next pyramid in his world.
+ * pre-condition: Karel stands on the ground, facing east.
+ * post-condition: Karel stands in front of a wall, presumably the base of a pyramid.
+ */
+void findNextPyramid (void) {
+    while (frontIsClear()) {
         move();
     }
+}
+
+/*
+ * Karel climbs the two pyramids in his world.
+ * pre-condition: Karel stands in his initial position (1,1) on the ground, facing east.
+ * post-condition: Karel stands in his final position on the ground in front of the right wall.
+ *                 All diamonds were collected from the two pyramids.
+ */
+
+void climbTwoPyramids (void) {
+    for (int i = 0; i < 2; i++) {
+        findNextPyramid();
+        climbPyramid();
+    }
+    findNextPyramid();
 }
 
 /*
  * This function is called when "go" is clicked.
  */
 void run (void) {
-    mineAllDiamonds();
+    climbTwoPyramids();
 }
