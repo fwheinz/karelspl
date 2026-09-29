@@ -22,7 +22,7 @@ async function activate(context) {
     context.subscriptions.push(vscode.commands.registerCommand("oth.startProgram", 
         async () => {
             await vscode.commands.executeCommand("workbench.action.terminal.sendSequence", { text : "\x03" })
-            vscode.window.activeTerminal.sendText("/workspaces/$RepositoryName/run.sh")
+            vscode.window.activeTerminal.sendText("/workspaces/$RepositoryName/.devcontainer/run.sh")
         }
     ))
 }
