@@ -3,6 +3,9 @@
   "features": {
       "ghcr.io/devcontainers/features/desktop-lite:1": {}
   },
+  "containerEnv": {
+    "VNC_RESOLUTION": "1920x1080x16"
+  },
   "forwardPorts": [6080],
   "portsAttributes": {
     "6080": {
