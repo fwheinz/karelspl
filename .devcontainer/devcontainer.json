@@ -1,0 +1,26 @@
+{
+  "image": "mcr.microsoft.com/devcontainers/base:ubuntu24.04",
+  "features": {
+      "ghcr.io/devcontainers/features/desktop-lite:1": {}
+  },
+  "forwardPorts": [6080],
+  "portsAttributes": {
+    "6080": {
+      "label": "desktop"
+    }
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "/workspaces/pg1exercises/.devcontainer/extensions/oth-1.0.0.vsix",
+        "ms-vscode.cpptools"
+      ],
+      "settings": {
+        "workbench.editorAssociations": {
+            "*.md": "vscode.markdown.preview.editor"
+        }
+      }
+    }
+  },
+  "postCreateCommand": "sudo apt -y update && sudo apt -y install libsdl2-dev libsdl2-ttf-dev libsdl2-image-dev"
+}
