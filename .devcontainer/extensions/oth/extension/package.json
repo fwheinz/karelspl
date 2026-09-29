@@ -23,11 +23,6 @@
 				"icon": "$(home)"
 			},
 			{
-				"command": "oth.launchGUIInternal",
-				"title": "Launch noVNC Viewer for GUI programs in VSCode tab",
-				"icon": "$(home)"
-			},
-			{
 				"command": "oth.startProgram",
 				"title": "Build and start last modified program",
 				"icon": "$(home)"
