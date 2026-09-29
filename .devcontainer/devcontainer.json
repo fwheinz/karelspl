@@ -12,7 +12,7 @@
   "customizations": {
     "vscode": {
       "extensions": [
-        "/workspaces/pg1exercises/.devcontainer/extensions/oth-1.0.0.vsix",
+        "/workspaces/karelspl/.devcontainer/extensions/oth-1.0.0.vsix",
         "ms-vscode.cpptools"
       ],
       "settings": {
@@ -22,5 +22,5 @@
       }
     }
   },
-  "postCreateCommand": "sudo apt -y update && sudo apt -y install libsdl2-dev libsdl2-ttf-dev libsdl2-image-dev"
+  "postCreateCommand": "sudo apt -y update && sudo apt -y install libsdl2-dev libsdl2-ttf-dev libsdl2-image-dev cmake"
 }
