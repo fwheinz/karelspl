@@ -48,7 +48,7 @@
 		"viewsWelcome": [
 			{
 				"view": "oth-menu",
-				"contents": "Compile and Start program:\n[Compile&Start](command:oth.startProgram)\nLaunch noVNC client to view your GUI program in a new browser window:\n[GUI (Browser)](command:oth.launchGUIBrowser)\nLaunch noVNC client to view your GUI program in a VSCode tab:\n[GUI (VSCode)](command:oth.launchGUIInternal)"
+				"contents": "Compile and Start program:\n[Compile&Start](command:oth.startProgram)\nLaunch noVNC client to view your GUI program in a new browser window:\n[GUI (Browser)](command:oth.launchGUIBrowser)\n"
 			}
 		]
 	}
