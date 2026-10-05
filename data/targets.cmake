@@ -53,6 +53,9 @@ if(WIN32)
             "${INCLUDE_DIR}"
     )
 
+    file(GLOB SDLLIBS ${CMAKE_CURRENT_SOURCE_DIR}/lib/*.dll)
+    file(COPY ${SDLLIBS} DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
+
 else()
 
     # Linux

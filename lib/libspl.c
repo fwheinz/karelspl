@@ -1426,7 +1426,120 @@ int main (int argc, char **argv) {
 	return 0;
 }
 
+#include <SDL.h>
+#include <stdlib.h>
 
+typedef struct ObjectCDT Point;
+
+/*
+ * Draw a filled polygon using only the SDL2 renderer API.
+ *
+ * Works with convex and concave polygons.
+ * The polygon is assumed to be a simple polygon
+ * (edges should not cross).
+ *
+ * points: array of polygon vertices
+ * count:  number of vertices
+ */
+int drawFilledPolygon(SDL_Renderer *renderer,
+                           const Point *points,
+                           int count, SDL_Color color)
+{
+    if (!renderer || !points || count < 3)
+        return 0;
+
+		SDL_SetRenderDrawColor(renderer, color.r, color.g, color.b, SDL_ALPHA_OPAQUE);
+
+    /* Find vertical bounds */
+    int min_y = points[0].y;
+    int max_y = points[0].y;
+
+    for (int i = 1; i < count; ++i) {
+        if (points[i].y < min_y)
+            min_y = points[i].y;
+
+        if (points[i].y > max_y)
+            max_y = points[i].y;
+    }
+
+    /* Maximum possible number of intersections is count */
+    int *intersections = malloc(sizeof(int) * count);
+
+    if (!intersections)
+        return 0;
+
+    for (int y = min_y; y <= max_y; ++y) {
+        int intersection_count = 0;
+
+        /*
+         * Find intersections between this scanline
+         * and every polygon edge.
+         */
+        for (int i = 0; i < count; ++i) {
+            int j = (i + 1) % count;
+
+            int x1 = points[i].x;
+            int y1 = points[i].y;
+            int x2 = points[j].x;
+            int y2 = points[j].y;
+
+            /*
+             * Half-open edge rule:
+             *
+             * Include the lower endpoint, exclude the upper
+             * endpoint. This prevents vertices from being
+             * counted twice.
+             */
+            if ((y1 <= y && y < y2) ||
+                (y2 <= y && y < y1))
+            {
+                /*
+                 * Linear interpolation:
+                 *
+                 * x = x1 + (y-y1) * (x2-x1)/(y2-y1)
+                 */
+                int x = x1 +
+                        (int)(((long long)(y - y1) *
+                               (x2 - x1)) /
+                              (y2 - y1));
+
+                intersections[intersection_count++] = x;
+            }
+        }
+
+        /* Sort intersections */
+        for (int i = 1; i < intersection_count; ++i) {
+            int value = intersections[i];
+            int j = i - 1;
+
+            while (j >= 0 && intersections[j] > value) {
+                intersections[j + 1] = intersections[j];
+                --j;
+            }
+
+            intersections[j + 1] = value;
+        }
+
+        /*
+         * Fill between pairs of intersections.
+         *
+         * [x0, x1], [x2, x3], ...
+         */
+        for (int i = 0; i + 1 < intersection_count; i += 2) {
+            SDL_RenderDrawLine(renderer,
+                               intersections[i],
+                               y,
+                               intersections[i + 1],
+                               y);
+        }
+    }
+
+    free(intersections);
+
+		return 1;
+}
+
+#if 0
 
 
 // Filled Polygons
@@ -1634,6 +1747,7 @@ int drawFilledPolygon(
     return result == 0;
 }
 
+#endif
 
 
 
