@@ -210,6 +210,12 @@ struct world *parseWorld (char *filename) {
 	return world;
 }
 
+void freeWorld (struct world *w) {
+	free(w->name);
+	free(w->tiles);
+	free(w);
+}
+
 #define PADDING 10
 
 static void setBeeper (struct world *world, int x, int _y, int beepers) {
@@ -534,6 +540,7 @@ void loadWorld (char *name) {
 	char fname[strlen(name)+20];
 	snprintf(fname, sizeof fname, "data/worlds/%s.w", name);
 	ww = parseWorld(fname);
+	ww->name = strdup(name);
 	renderWorld(ww);
 }
 
@@ -559,6 +566,8 @@ void processEvent (GEvent e) {
 	} else if (o == ww->speeddown) {
 		setSpeed(ww->speed-1);
 	} else if (o == ww->reset) {
+		ww->karel.x = 0;
+		ww->karel.y = 0;
 		setKarel(ww, 0, 0);
 	}
 }
