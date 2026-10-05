@@ -14,6 +14,7 @@ add_spl_target(06-SPL-AnswerPhone exercises/06-SPL-AnswerPhone/test.c exercises/
 add_spl_target(06-SPL-Club exercises/06-SPL-Club/test.c exercises/06-SPL-Club/main.c)
 add_spl_target(06-SPL-Kreise  exercises/06-SPL-Kreise/main.c)
 add_spl_target(06-SPL-noThirteenSum exercises/06-SPL-noThirteenSum/test.c exercises/06-SPL-noThirteenSum/main.c)
+add_spl_target(06-SPL-RouletteBuggy  exercises/06-SPL-RouletteBuggy/main.c)
 add_spl_target(06-SPL-SquirrelParty exercises/06-SPL-SquirrelParty/test.c exercises/06-SPL-SquirrelParty/main.c)
 add_spl_target(06-SPL-sumNoTeens exercises/06-SPL-sumNoTeens/test.c exercises/06-SPL-sumNoTeens/main.c)
 add_spl_target(07-SPL-CarSimulator  exercises/07-SPL-CarSimulator/main.c)
