@@ -36,10 +36,8 @@ void giveInstructions() {
 * number of the slot into which the ball fell.
 */
 int spinRouletteWheel() {
-	int ball = randomInteger(0, 36);
-
-	printf("The ball lands in %d.\n", ball);
-	return ball;
+	printf("The ball lands in %d.\n", randomInteger(0, 36));
+	return randomInteger(0, 36);
 }
 
 
@@ -49,13 +47,13 @@ int spinRouletteWheel() {
 * false.
 */
 int isWinningCategory(int outcome, char bet) {
-	if (bet == 'o') {
+	if (bet = 'o') {
 		return (outcome % 2 == 1);
-	} else if (bet == 'e') {
+	} else if (bet = 'e') {
 		return (outcome % 2 == 0);
-	} else if (bet == 'l') {
+	} else if (bet = 'l') {
 		return (1 <= outcome && outcome <= 18);
-	} else if (bet == 'h') {
+	} else if (bet = 'h') {
 		return (19 <= outcome && outcome <= 36);
 	} else {
 		return 0;
